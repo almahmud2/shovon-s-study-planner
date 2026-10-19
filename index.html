@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MBBS Weekly Study Planner</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #6c757d;
+  --border: #e9ecef;
+  --accent: #0d6efd;
+  --accent-hover: #0b5ed7;
+  --success: #198754;
+  --danger: #dc3545;
+  --warning: #fd7e14;
+  --anatomy: #e74c3c;
+  --physiology: #3498db;
+  --biochemistry: #9b59b6;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --radius: 10px;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --border: #333;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 12px; }
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+h1 { font-size: 1.25rem; font-weight: 700; }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--accent);
+  color: white;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { background: var(--border); }
+.btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+.btn-danger { background: var(--danger); }
+.btn-danger:hover { background: #bb2d3b; }
+.btn-success { background: var(--success); }
+.btn-success:hover { background: #157347; }
+.btn-warning { background: var(--warning); color: #fff; }
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-card .value { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+.stat-card .label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 20px;
+  height: 12px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #20c997);
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.tab .day-progress {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  margin-left: 4px;
+}
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.panel h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.filters input[type="search"] {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--bg);
+  color: var(--text);
+}
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--bg);
+  color: var(--text);
+}
+.subject-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.subject-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.subject-item:last-child { border-bottom: none; }
+.subject-item:hover { background: var(--bg); }
+.subject-item.completed { opacity: 0.65; }
+.subject-item.completed .subj-name { text-decoration: line-through; color: var(--text-muted); }
+.subj-check { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.subj-name { flex: 1; font-size: 0.9rem; }
+.subj-cat {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.cat-anatomy { background: var(--anatomy); }
+.cat-physiology { background: var(--physiology); }
+.cat-biochemistry { background: var(--biochemistry); }
+.cat-custom { background: #6c757d; }
+.assigned-list { margin-top: 8px; }
+.assigned-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+.assigned-item.completed { border-color: var(--success); background: rgba(25,135,84,0.08); }
+.assigned-item .remove-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+}
+.day-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.day-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  box-shadow: var(--shadow);
+}
+.day-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.day-card h3 { font-size: 1rem; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.day-card .mini-list { font-size: 0.8rem; color: var(--text-muted); max-height: 120px; overflow: hidden; }
+.day-card .mini-item { padding: 2px 0; }
+.day-card .mini-item.done { text-decoration: line-through; color: var(--success); }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.modal h3 { margin-bottom: 12px; font-size: 1.15rem; }
+.modal input, .modal select, .modal textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  background: var(--bg);
+  color: var(--text);
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  max-width: 90%;
+  text-align: center;
+}
+.toast.show { opacity: 1; }
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--border);
+}
+.badge-success { background: rgba(25,135,84,0.15); color: var(--success); }
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.week-info {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+@media (max-width: 600px) {
+  h1 { font-size: 1.1rem; }
+  .dashboard { grid-template-columns: repeat(2, 1fr); }
+  .stat-card .value { font-size: 1.3rem; }
+  .tabs { gap: 2px; }
+  .tab { padding: 7px 12px; font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <div>
+      <h1>📚 MBBS Weekly Study Planner</h1>
+      <div class="week-info" id="weekInfo"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline btn-sm" id="btnTheme" title="Toggle theme">🌓</button>
+      <button class="btn btn-outline btn-sm" id="btnBackup">Backup</button>
+      <button class="btn btn-outline btn-sm" id="btnRestore">Restore</button>
+      <button class="btn btn-outline btn-sm" id="btnSettings">⚙️</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <div class="stat-card">
+      <div class="value" id="statTotal">35</div>
+      <div class="label">Total Subjects</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="statCompleted">0</div>
+      <div class="label">Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="statRemaining">35</div>
+      <div class="label">Remaining</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="statPercent">0%</div>
+      <div class="label">Weekly Progress</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="mainProgress" style="width:0%"></div></div>
+  <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">
+    <span id="scheduledInfo">0 scheduled</span>
+    <span id="unscheduledInfo">35 unscheduled</span>
+  </div>
+
+  <!-- Day Tabs -->
+  <div class="tabs" id="dayTabs"></div>
+
+  <!-- Main Content Area -->
+  <div id="mainContent"></div>
+
+  <!-- Overview Section -->
+  <div class="section-title">Weekly Overview</div>
+  <div class="overview-grid" id="overviewGrid"></div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Hidden file input for restore -->
+<input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+'use strict';
+
+const STORAGE_KEY = 'mbbs_study_planner_v1';
+const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const SCHEMA_VERSION = 1;
+
+const INITIAL_SUBJECTS = [
+  { id: 'a1-histology', name: 'Histology', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a1-embryology', name: 'Embryology', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a1-brain', name: 'Brain', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a1-eyeball', name: 'Eyeball', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a1-headneck', name: 'Head & Neck', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a1-mcq', name: 'A-1 MCQ', category: 'Anatomy — A-1', dept: 'Anatomy' },
+  { id: 'a2-thorax', name: 'Thorax', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-abd-digestive', name: 'Abdomen (Digestive System)', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-abd-liver', name: 'Abdomen (Liver-Spleen)', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-abd-urinary', name: 'Abdomen (Urinary Tract)', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-abd-male', name: 'Abdomen (Male Genital)', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-abd-female', name: 'Abdomen (Female Genital)', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-sup-ext', name: 'Superior Extremity', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-inf-ext', name: 'Inferior Extremity', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'a2-mcq', name: 'A-2 MCQ', category: 'Anatomy — A-2', dept: 'Anatomy' },
+  { id: 'p1-general', name: 'General Physiology', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p1-blood', name: 'Blood', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p1-cvs', name: 'CVS', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p1-resp', name: 'Respiratory', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p1-git', name: 'GIT', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p1-mcq', name: 'P-1 MCQ', category: 'Physiology — P-1', dept: 'Physiology' },
+  { id: 'p2-renal', name: 'Renal Physiology', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'p2-endo', name: 'Endocrine', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'p2-repro', name: 'Reproductive', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'p2-nervous', name: 'Nervous', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'p2-sense', name: 'Sense', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'p2-mcq', name: 'P-2 MCQ', category: 'Physiology — P-2', dept: 'Physiology' },
+  { id: 'b1-biomolecule', name: 'Biomolecule', category: 'Biochemistry — B-1', dept: 'Biochemistry' },
+  { id: 'b1-metabolism', name: 'Metabolism', category: 'Biochemistry — B-1', dept: 'Biochemistry' },
+  { id: 'b1-endo', name: 'Endocrine Biochemistry', category: 'Biochemistry — B-1', dept: 'Biochemistry' },
+  { id: 'b1-mcq', name: 'B-1 MCQ', category: 'Biochemistry — B-1', dept: 'Biochemistry' },
+  { id: 'b2-food', name: 'Food & Nutrition', category: 'Biochemistry — B-2', dept: 'Biochemistry' },
+  { id: 'b2-renal', name: 'Renal Biochemistry', category: 'Biochemistry — B-2', dept: 'Biochemistry' },
+  { id: 'b2-genetics', name: 'Genetics', category: 'Biochemistry — B-2', dept: 'Biochemistry' },
+  { id: 'b2-mcq', name: 'B-2 MCQ', category: 'Biochemistry — B-2', dept: 'Biochemistry' }
+];
+
+// State
+let state = {
+  subjects: [],
+  routines: {},
+  completed: {},
+  weekStart: null,
+  history: [],
+  settings: { theme: 'light', showCompletedInList: true },
+  activeDay: 'Saturday'
+};
+
+function generateId() {
+  return 'custom-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function getWeekStart(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); // 0=Sun, 6=Sat
+  // Saturday is start: if day is Sat (6), stay; else go back to previous Sat
+  const diff = day === 6 ? 0 : (day + 1);
+  d.setDate(d.getDate() - diff);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function saveState() {
+  try {
+    const data = JSON.stringify({
+      schema: SCHEMA_VERSION,
+      subjects: state.subjects,
+      routines: state.routines,
+      completed: state.completed,
+      weekStart: state.weekStart,
+      history: state.history,
+      settings: state.settings,
+      savedAt: new Date().toISOString()
+    });
+    localStorage.setItem(STORAGE_KEY, data);
+    return true;
+  } catch (e) {
+    console.error('Save failed', e);
+    toast('⚠️ Could not save data');
+    return false;
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data.subjects) return false;
+    state.subjects = data.subjects;
+    state.routines = data.routines || {};
+    state.completed = data.completed || {};
+    state.weekStart = data.weekStart;
+    state.history = data.history || [];
+    state.settings = Object.assign({ theme: 'light', showCompletedInList: true }, data.settings || {});
+    return true;
+  } catch (e) {
+    console.error('Load failed', e);
+    return false;
+  }
+}
+
+function initState() {
+  const loaded = loadState();
+  if (!loaded) {
+    state.subjects = JSON.parse(JSON.stringify(INITIAL_SUBJECTS));
+    state.routines = {};
+    DAYS.forEach(d => { state.routines[d] = []; });
+    state.completed = {};
+    state.weekStart = getWeekStart();
+    state.history = [];
+    state.settings = { theme: 'light', showCompletedInList: true };
+    saveState();
+  } else {
+    // Ensure all days exist
+    DAYS.forEach(d => {
+      if (!Array.isArray(state.routines[d])) state.routines[d] = [];
+    });
+    // Check for new week
+    const currentWeek = getWeekStart();
+    if (state.weekStart && state.weekStart !== currentWeek) {
+      // Archive previous week
+      const completedCount = Object.values(state.completed).filter(Boolean).length;
+      const total = state.subjects.length;
+      state.history.unshift({
+        weekStart: state.weekStart,
+        completed: completedCount,
+        total: total,
+        percent: total ? Math.round((completedCount / total) * 100) : 0,
+        archivedAt: new Date().toISOString()
+      });
+      if (state.history.length > 12) state.history = state.history.slice(0, 12);
+      // Reset completions for new week
+      state.completed = {};
+      state.weekStart = currentWeek;
+      // Keep routines but clean completed ones from routines? Keep as is, user can re-assign
+      saveState();
+      toast('New study week started! Previous week archived.');
+    } else if (!state.weekStart) {
+      state.weekStart = currentWeek;
+      saveState();
+    }
+  }
+  applyTheme();
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.settings.theme === 'dark' ? 'dark' : 'light');
+}
+
+function getSubject(id) {
+  return state.subjects.find(s => s.id === id);
+}
+
+function isCompleted(id) {
+  return !!state.completed[id];
+}
+
+function setCompleted(id, val) {
+  if (val) {
+    state.completed[id] = true;
+    // Remove from all other days' incomplete lists (keep in current if assigned)
+    DAYS.forEach(day => {
+      // We keep the assignment but mark global complete; filter display accordingly
+    });
+  } else {
+    delete state.completed[id];
+  }
+  saveState();
+  renderAll();
+}
+
+function getDeptClass(dept) {
+  if (dept === 'Anatomy') return 'cat-anatomy';
+  if (dept === 'Physiology') return 'cat-physiology';
+  if (dept === 'Biochemistry') return 'cat-biochemistry';
+  return 'cat-custom';
+}
+
+function computeStats() {
+  const total = state.subjects.length;
+  const completedIds = new Set(Object.keys(state.completed).filter(id => state.completed[id] && getSubject(id)));
+  const completed = completedIds.size;
+  const remaining = total - completed;
+  const percent = total ? Math.round((completed / total) * 100) : 0;
+
+  // Scheduled: unique subjects assigned to any day
+  const scheduled = new Set();
+  DAYS.forEach(day => {
+    (state.routines[day] || []).forEach(id => scheduled.add(id));
+  });
+  const scheduledCount = scheduled.size;
+  const unscheduled = total - scheduledCount;
+
+  // Daily
+  const daily = {};
+  DAYS.forEach(day => {
+    const assigned = state.routines[day] || [];
+    const dayCompleted = assigned.filter(id => isCompleted(id)).length;
+    daily[day] = {
+      assigned: assigned.length,
+      completed: dayCompleted,
+      percent: assigned.length ? Math.round((dayCompleted / assigned.length) * 100) : 0
+    };
+  });
+
+  return { total, completed, remaining, percent, scheduledCount, unscheduled, daily };
+}
+
+function renderDashboard() {
+  const s = computeStats();
+  document.getElementById('statTotal').textContent = s.total;
+  document.getElementById('statCompleted').textContent = s.completed;
+  document.getElementById('statRemaining').textContent = s.remaining;
+  document.getElementById('statPercent').textContent = s.percent + '%';
+  document.getElementById('mainProgress').style.width = s.percent + '%';
+  document.getElementById('scheduledInfo').textContent = s.scheduledCount + ' scheduled';
+  document.getElementById('unscheduledInfo').textContent = s.unscheduled + ' unscheduled';
+
+  const weekEnd = new Date(state.weekStart + 'T00:00:00');
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  document.getElementById('weekInfo').textContent =
+    `Week of ${formatDate(state.weekStart)} – ${formatDate(weekEnd.toISOString().slice(0,10))}`;
+}
+
+function renderTabs() {
+  const s = computeStats();
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = DAYS.map(day => {
+    const d = s.daily[day];
+    const active = state.activeDay === day ? 'active' : '';
+    return `<div class="tab ${active}" data-day="${day}">${day.slice(0,3)} <span class="day-progress">${d.completed}/${d.assigned}</span></div>`;
+  }).join('');
+  tabs.querySelectorAll('.tab').forEach(el => {
+    el.addEventListener('click', () => {
+      state.activeDay = el.dataset.day;
+      renderAll();
+    });
+  });
+}
+
+function renderDayEditor() {
+  const day = state.activeDay;
+  const assigned = state.routines[day] || [];
+  const s = computeStats().daily[day];
+  const content = document.getElementById('mainContent');
+
+  content.innerHTML = `
+    <div class="panel">
+      <h2>
+        <span>${day}</span>
+        <span class="badge ${s.percent === 100 && s.assigned > 0 ? 'badge-success' : ''}">${s.completed}/${s.assigned} done (${s.percent}%)</span>
+      </h2>
+      <div class="day-stats">
+        <span>Assigned: <strong>${s.assigned}</strong></span>
+        <span>Completed: <strong>${s.completed}</strong></span>
+        <span>Target: 5–6 subjects</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${s.percent}%"></div></div>
+
+      <div class="section-title" style="margin-top:16px">Assigned Subjects</div>
+      <div class="assigned-list" id="assignedList"></div>
+      <div class="toolbar" style="margin-top:8px">
+        <button class="btn btn-sm btn-outline" id="btnClearDay">Clear Day</button>
+      </div>
+
+      <div class="section-title">Add Subjects</div>
+      <div class="filters">
+        <input type="search" id="searchInput" placeholder="Search subjects...">
+        <select id="deptFilter">
+          <option value="">All Departments</option>
+          <option value="Anatomy">Anatomy</option>
+          <option value="Physiology">Physiology</option>
+          <option value="Biochemistry">Biochemistry</option>
+          <option value="Custom">Custom</option>
+        </select>
+        <select id="catFilter">
+          <option value="">All Categories</option>
+        </select>
+        <button class="btn btn-sm btn-outline" id="btnSelectAll">Select Visible</button>
+        <button class="btn btn-sm btn-outline" id="btnClearSel">Clear Sel</button>
+      </div>
+      <div class="subject-list" id="masterList"></div>
+      <div class="toolbar">
+        <button class="btn btn-sm" id="btnAssignSelected">Assign Selected</button>
+        <button class="btn btn-sm btn-outline" id="btnAddCustom">+ Custom Subject</button>
+      </div>
+    </div>
+  `;
+
+  // Populate category filter
+  const cats = [...new Set(state.subjects.map(s => s.category))].sort();
+  const catSelect = document.getElementById('catFilter');
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    catSelect.appendChild(opt);
+  });
+
+  renderAssignedList();
+  renderMasterList();
+
+  // Event listeners
+  document.getElementById('searchInput').addEventListener('input', renderMasterList);
+  document.getElementById('deptFilter').addEventListener('change', renderMasterList);
+  document.getElementById('catFilter').addEventListener('change', renderMasterList);
+  document.getElementById('btnSelectAll').addEventListener('click', () => {
+    document.querySelectorAll('#masterList .subj-check:not(:disabled)').forEach(cb => cb.checked = true);
+  });
+  document.getElementById('btnClearSel').addEventListener('click', () => {
+    document.querySelectorAll('#masterList .subj-check').forEach(cb => cb.checked = false);
+  });
+  document.getElementById('btnAssignSelected').addEventListener('click', assignSelected);
+  document.getElementById('btnClearDay').addEventListener('click', () => {
+    if (confirm(`Clear all subjects from ${day}?`)) {
+      state.routines[day] = [];
+      saveState();
+      renderAll();
+      toast('Day cleared');
+    }
+  });
+  document.getElementById('btnAddCustom').addEventListener('click', showAddCustomModal);
+}
+
+function renderAssignedList() {
+  const day = state.activeDay;
+  const list = document.getElementById('assignedList');
+  const assigned = state.routines[day] || [];
+  if (!assigned.length) {
+    list.innerHTML = '<div class="empty-state">No subjects assigned yet. Select from the list below.</div>';
+    return;
+  }
+  list.innerHTML = assigned.map(id => {
+    const subj = getSubject(id);
+    if (!subj) return '';
+    const done = isCompleted(id);
+    return `
+      <div class="assigned-item ${done ? 'completed' : ''}" data-id="${id}">
+        <input type="checkbox" class="subj-check complete-check" ${done ? 'checked' : ''} data-id="${id}">
+        <span class="subj-name">${subj.name}</span>
+        <span class="subj-cat ${getDeptClass(subj.dept)}">${subj.category}</span>
+        <button class="remove-btn" data-id="${id}" title="Remove">×</button>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.complete-check').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const id = e.target.dataset.id;
+      setCompleted(id, e.target.checked);
+      if (e.target.checked) toast('Marked complete globally');
+      else toast('Completion undone');
+    });
+  });
+  list.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      state.routines[day] = (state.routines[day] || []).filter(x => x !== id);
+      saveState();
+      renderAll();
+    });
+  });
+}
+
+function renderMasterList() {
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const dept = document.getElementById('deptFilter')?.value || '';
+  const cat = document.getElementById('catFilter')?.value || '';
+  const day = state.activeDay;
+  const assignedSet = new Set(state.routines[day] || []);
+
+  let list = state.subjects.filter(s => {
+    if (search && !s.name.toLowerCase().includes(search) && !s.category.toLowerCase().includes(search)) return false;
+    if (dept && s.dept !== dept) return false;
+    if (cat && s.category !== cat) return false;
+    if (!state.settings.showCompletedInList && isCompleted(s.id)) return false;
+    return true;
+  });
+
+  // Sort: incomplete first, then by category
+  list.sort((a, b) => {
+    const ac = isCompleted(a.id) ? 1 : 0;
+    const bc = isCompleted(b.id) ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
+  });
+
+  const el = document.getElementById('masterList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state">No matching subjects</div>';
+    return;
+  }
+  el.innerHTML = list.map(s => {
+    const done = isCompleted(s.id);
+    const already = assignedSet.has(s.id);
+    return `
+      <div class="subject-item ${done ? 'completed' : ''}">
+        <input type="checkbox" class="subj-check" data-id="${s.id}" ${already ? 'disabled checked' : ''} ${done && !already ? '' : ''}>
+        <span class="subj-name">${s.name}${done ? ' ✓' : ''}${already ? ' (assigned)' : ''}</span>
+        <span class="subj-cat ${getDeptClass(s.dept)}">${s.category}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function assignSelected() {
+  const day = state.activeDay;
+  const checks = document.querySelectorAll('#masterList .subj-check:checked:not(:disabled)');
+  let added = 0;
+  checks.forEach(cb => {
+    const id = cb.dataset.id;
+    if (!state.routines[day].includes(id)) {
+      state.routines[day].push(id);
+      added++;
+    }
+  });
+  if (added) {
+    saveState();
+    renderAll();
+    toast(`Added ${added} subject(s) to ${day}`);
+  } else {
+    toast('No new subjects selected');
+  }
+}
+
+function renderOverview() {
+  const grid = document.getElementById('overviewGrid');
+  const s = computeStats();
+  grid.innerHTML = DAYS.map(day => {
+    const d = s.daily[day];
+    const assigned = state.routines[day] || [];
+    const items = assigned.map(id => {
+      const subj = getSubject(id);
+      if (!subj) return '';
+      const done = isCompleted(id);
+      return `<div class="mini-item ${done ? 'done' : ''}">${done ? '✓ ' : '○ '}${subj.name}</div>`;
+    }).join('') || '<div class="mini-item" style="color:var(--text-muted)">Empty</div>';
+    return `
+      <div class="day-card" data-day="${day}">
+        <h3>${day} <span class="badge ${d.percent === 100 && d.assigned ? 'badge-success' : ''}">${d.completed}/${d.assigned}</span></h3>
+        <div class="progress-bar-wrap" style="height:6px;margin-bottom:8px"><div class="progress-bar" style="width:${d.percent}%"></div></div>
+        <div class="mini-list">${items}</div>
+      </div>
+    `;
+  }).join('');
+  grid.querySelectorAll('.day-card').forEach(card => {
+    card.addEventListener('click', () => {
+      state.activeDay = card.dataset.day;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+function renderAll() {
+  renderDashboard();
+  renderTabs();
+  renderDayEditor();
+  renderOverview();
+}
+
+// Modals
+function showModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function hideModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modalOverlay')) hideModal();
+});
+
+function showAddCustomModal() {
+  showModal(`
+    <h3>Add Custom Subject</h3>
+    <input type="text" id="customName" placeholder="Subject name" maxlength="80">
+    <input type="text" id="customCat" placeholder="Category (e.g. Custom)" maxlength="40" value="Custom">
+    <select id="customDept">
+      <option value="Custom">Custom</option>
+      <option value="Anatomy">Anatomy</option>
+      <option value="Physiology">Physiology</option>
+      <option value="Biochemistry">Biochemistry</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalCancel">Cancel</button>
+      <button class="btn" id="modalSave">Add</button>
+    </div>
+  `);
+  document.getElementById('modalCancel').onclick = hideModal;
+  document.getElementById('modalSave').onclick = () => {
+    const name = document.getElementById('customName').value.trim();
+    const category = document.getElementById('customCat').value.trim() || 'Custom';
+    const dept = document.getElementById('customDept').value;
+    if (!name) { toast('Name required'); return; }
+    const id = generateId();
+    state.subjects.push({ id, name, category, dept });
+    saveState();
+    hideModal();
+    renderAll();
+    toast('Subject added');
+  };
+}
+
+function showSettingsModal() {
+  const hist = state.history.length
+    ? state.history.map(h => `<div style="font-size:0.85rem;padding:4px 0;border-bottom:1px solid var(--border)">${formatDate(h.weekStart)}: ${h.completed}/${h.total} (${h.percent}%)</div>`).join('')
+    : '<div class="empty-state">No history yet</div>';
+
+  showModal(`
+    <h3>Settings & Tools</h3>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <input type="checkbox" id="setShowCompleted" ${state.settings.showCompletedInList ? 'checked' : ''}>
+      Show completed subjects in master list
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <input type="checkbox" id="setDark" ${state.settings.theme === 'dark' ? 'checked' : ''}>
+      Dark mode
+    </label>
+    <div class="toolbar" style="flex-direction:column;align-items:stretch">
+      <button class="btn btn-outline btn-sm" id="btnResetWeek">Reset Week Completions</button>
+      <button class="btn btn-outline btn-sm" id="btnRestoreOriginal">Restore Original 35 Subjects</button>
+      <button class="btn btn-outline btn-sm" id="btnManageSubjects">Manage Subjects</button>
+    </div>
+    <div class="section-title">Weekly History</div>
+    <div style="max-height:160px;overflow-y:auto">${hist}</div>
+    <div class="modal-actions">
+      <button class="btn" id="modalClose">Close</button>
+    </div>
+  `);
+  document.getElementById('modalClose').onclick = hideModal;
+  document.getElementById('setShowCompleted').onchange = (e) => {
+    state.settings.showCompletedInList = e.target.checked;
+    saveState();
+    renderAll();
+  };
+  document.getElementById('setDark').onchange = (e) => {
+    state.settings.theme = e.target.checked ? 'dark' : 'light';
+    applyTheme();
+    saveState();
+  };
+  document.getElementById('btnResetWeek').onclick = () => {
+    if (confirm('Reset all completion statuses for this week? Assignments will remain.')) {
+      state.completed = {};
+      saveState();
+      hideModal();
+      renderAll();
+      toast('Week completions reset');
+    }
+  };
+  document.getElementById('btnRestoreOriginal').onclick = () => {
+    if (confirm('Restore the original 35 subjects? Custom subjects will be removed. Completions and routines referencing them will be cleaned.')) {
+      const origIds = new Set(INITIAL_SUBJECTS.map(s => s.id));
+      state.subjects = JSON.parse(JSON.stringify(INITIAL_SUBJECTS));
+      // Clean routines
+      DAYS.forEach(day => {
+        state.routines[day] = (state.routines[day] || []).filter(id => origIds.has(id));
+      });
+      // Clean completed
+      Object.keys(state.completed).forEach(id => {
+        if (!origIds.has(id)) delete state.completed[id];
+      });
+      saveState();
+      hideModal();
+      renderAll();
+      toast('Original subjects restored');
+    }
+  };
+  document.getElementById('btnManageSubjects').onclick = showManageSubjects;
+}
+
+function showManageSubjects() {
+  const items = state.subjects.map(s => `
+    <div class="subject-item" style="flex-wrap:wrap">
+      <span class="subj-name" style="min-width:120px">${s.name}</span>
+      <span class="subj-cat ${getDeptClass(s.dept)}">${s.category}</span>
+      <div style="margin-left:auto;display:flex;gap:4px">
+        <button class="btn btn-sm btn-outline edit-subj" data-id="${s.id}">Edit</button>
+        <button class="btn btn-sm btn-danger del-subj" data-id="${s.id}">Del</button>
+      </div>
+    </div>
+  `).join('');
+  showModal(`
+    <h3>Manage Subjects (${state.subjects.length})</h3>
+    <div style="max-height:50vh;overflow-y:auto;margin-bottom:12px">${items}</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalBack">Back</button>
+      <button class="btn" id="modalClose2">Close</button>
+    </div>
+  `);
+  document.getElementById('modalBack').onclick = showSettingsModal;
+  document.getElementById('modalClose2').onclick = hideModal;
+  document.querySelectorAll('.edit-subj').forEach(btn => {
+    btn.onclick = () => showEditSubject(btn.dataset.id);
+  });
+  document.querySelectorAll('.del-subj').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id;
+      const subj = getSubject(id);
+      if (!confirm(`Delete "${subj.name}"? This removes it from all days and history.`)) return;
+      state.subjects = state.subjects.filter(s => s.id !== id);
+      DAYS.forEach(day => {
+        state.routines[day] = (state.routines[day] || []).filter(x => x !== id);
+      });
+      delete state.completed[id];
+      saveState();
+      showManageSubjects();
+      renderAll();
+      toast('Subject deleted');
+    };
+  });
+}
+
+function showEditSubject(id) {
+  const s = getSubject(id);
+  if (!s) return;
+  showModal(`
+    <h3>Edit Subject</h3>
+    <input type="text" id="editName" value="${s.name.replace(/"/g, '&quot;')}" maxlength="80">
+    <input type="text" id="editCat" value="${s.category.replace(/"/g, '&quot;')}" maxlength="40">
+    <select id="editDept">
+      <option value="Anatomy" ${s.dept==='Anatomy'?'selected':''}>Anatomy</option>
+      <option value="Physiology" ${s.dept==='Physiology'?'selected':''}>Physiology</option>
+      <option value="Biochemistry" ${s.dept==='Biochemistry'?'selected':''}>Biochemistry</option>
+      <option value="Custom" ${s.dept==='Custom'?'selected':''}>Custom</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalCancel">Cancel</button>
+      <button class="btn" id="modalSave">Save</button>
+    </div>
+  `);
+  document.getElementById('modalCancel').onclick = () => showManageSubjects();
+  document.getElementById('modalSave').onclick = () => {
+    const name = document.getElementById('editName').value.trim();
+    const category = document.getElementById('editCat').value.trim() || s.category;
+    const dept = document.getElementById('editDept').value;
+    if (!name) { toast('Name required'); return; }
+    s.name = name;
+    s.category = category;
+    s.dept = dept;
+    saveState();
+    showManageSubjects();
+    renderAll();
+    toast('Subject updated');
+  };
+}
+
+// Backup / Restore
+function exportBackup() {
+  const data = {
+    schema: SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    subjects: state.subjects,
+    routines: state.routines,
+    completed: state.completed,
+    weekStart: state.weekStart,
+    history: state.history,
+    settings: state.settings
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `study-planner-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || !Array.isArray(data.subjects) || !data.routines) {
+        toast('Invalid backup file');
+        return;
+      }
+      if (!confirm('This will replace all current planner data. Continue?')) return;
+      state.subjects = data.subjects;
+      state.routines = data.routines || {};
+      DAYS.forEach(d => { if (!Array.isArray(state.routines[d])) state.routines[d] = []; });
+      state.completed = data.completed || {};
+      state.weekStart = data.weekStart || getWeekStart();
+      state.history = data.history || [];
+      state.settings = Object.assign({ theme: 'light', showCompletedInList: true }, data.settings || {});
+      applyTheme();
+      saveState();
+      renderAll();
+      toast('Backup restored successfully');
+    } catch (err) {
+      console.error(err);
+      toast('Failed to parse backup file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Event bindings
+document.getElementById('btnTheme').onclick = () => {
+  state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+  saveState();
+};
+document.getElementById('btnBackup').onclick = exportBackup;
+document.getElementById('btnRestore').onclick = () => document.getElementById('fileInput').click();
+document.getElementById('fileInput').onchange = (e) => {
+  if (e.target.files[0]) {
+    importBackup(e.target.files[0]);
+    e.target.value = '';
+  }
+};
+document.getElementById('btnSettings').onclick = showSettingsModal;
+
+// Init
+initState();
+// Validate subject count
+if (state.subjects.length !== 35 && !localStorage.getItem(STORAGE_KEY)) {
+  console.warn('Subject count mismatch on init');
+}
+renderAll();
+
+// Expose for debugging (optional)
+window.__planner = { state, saveState, renderAll };
+})();
+</script>
+</body>
+</html>
